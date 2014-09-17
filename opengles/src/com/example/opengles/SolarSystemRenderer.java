@@ -14,7 +14,7 @@ public class SolarSystemRenderer implements Renderer {
 
 	public SolarSystemRenderer(boolean translucentBackground) {
 		mTranslucentBackground = translucentBackground;
-		mPlanet = new Planet(10, 10, 1.0f, 1.0f);
+		mPlanet = new Planet(20, 20, 1.0f, 1.0f);
 	}
 
 	@Override

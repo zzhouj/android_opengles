@@ -20,7 +20,7 @@ public class Planet {
 
 	public Planet(int stacks, int slices, float radius, float squash) {
 		this.mStacks = stacks;
-		this.mSlices = slices;
+		this.mSlices = slices + 1;
 		this.mRadius = radius;
 		this.mSquash = squash;
 		init();
@@ -39,8 +39,8 @@ public class Planet {
 
 		mScale = mRadius;
 
-		vertexData = new float[3 * (mSlices * 2 + 2) * mStacks];
-		colorData = new float[4 * (mSlices * 2 + 2) * mStacks];
+		vertexData = new float[3 * mSlices * 2 * mStacks];
+		colorData = new float[4 * mSlices * 2 * mStacks];
 
 		for (int i = 0; i < mStacks; i++) {
 			float phi0 = (float) Math.PI * ((float) (i + 0) * (1.0f / (float) mStacks) - 0.5f);
@@ -76,9 +76,6 @@ public class Planet {
 			}
 			blue += colorIncrement;
 			red -= colorIncrement;
-			vertexData[vIndex + 0] = vertexData[vIndex + 3] = vertexData[vIndex - 3];
-			vertexData[vIndex + 1] = vertexData[vIndex + 4] = vertexData[vIndex - 2];
-			vertexData[vIndex + 2] = vertexData[vIndex + 5] = vertexData[vIndex - 1];
 		}
 		mVertexData = makeFloatBuffer(vertexData);
 		mColorData = makeFloatBuffer(colorData);
@@ -93,7 +90,7 @@ public class Planet {
 		gl.glColorPointer(4, GL10.GL_FLOAT, 0, mColorData);
 		gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
 
-		gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 0, (mSlices + 1) * 2 * (mStacks - 1) + 2);
+		gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 0, mSlices * 2 * mStacks);
 	}
 
 	private FloatBuffer makeFloatBuffer(float[] data) {
