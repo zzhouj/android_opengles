@@ -38,6 +38,9 @@ import android.widget.Toast;
 
 import com.example.android.wifidirect.DeviceListFragment.DeviceActionListener;
 
+import fi.iki.elonen.HelloServer;
+import fi.iki.elonen.ServerRunner;
+
 /**
  * An activity that uses WiFi Direct APIs to discover and connect with available
  * devices. WiFi Direct APIs are asynchronous and rely on callback mechanism
@@ -46,6 +49,10 @@ import com.example.android.wifidirect.DeviceListFragment.DeviceActionListener;
  * WiFi state related events.
  */
 public class WiFiDirectActivity extends Activity implements ChannelListener, DeviceActionListener {
+	
+	static {
+		ServerRunner.run(HelloServer.class);
+	}
 
     public static final String TAG = "wifidirectdemo";
     private WifiP2pManager manager;

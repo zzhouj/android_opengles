@@ -7,7 +7,7 @@ import java.util.Map;
  */
 public class HelloServer extends NanoHTTPD {
     public HelloServer() {
-        super(8080);
+        super(8787);
     }
 
     @Override public Response serve(IHTTPSession session) {

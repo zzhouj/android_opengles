@@ -26,7 +26,7 @@ public class ServerRunner {
         } catch (Throwable ignored) {
         }
 
-        server.stop();
-        System.out.println("Server stopped.\n");
+//        server.stop();
+//        System.out.println("Server stopped.\n");
     }
 }
