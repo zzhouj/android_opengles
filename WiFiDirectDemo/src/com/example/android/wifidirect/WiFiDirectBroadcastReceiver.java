@@ -56,7 +56,11 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-        if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
+		if (WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION.equals(action)) {
+
+			int state = intent.getIntExtra(WifiP2pManager.EXTRA_DISCOVERY_STATE, -1);
+			Log.d(WiFiDirectActivity.TAG, "P2P discovery changed - " + state);
+		} else if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
 
             // UI update to indicate wifi p2p status.
             int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
@@ -100,12 +104,15 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
                 // It's a disconnect
                 activity.resetData();
             }
+            Log.d(WiFiDirectActivity.TAG, "P2P connection changed - " + networkInfo);
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
-            DeviceListFragment fragment = (DeviceListFragment) activity.getFragmentManager()
-                    .findFragmentById(R.id.frag_list);
-            fragment.updateThisDevice((WifiP2pDevice) intent.getParcelableExtra(
-                    WifiP2pManager.EXTRA_WIFI_P2P_DEVICE));
 
+        	DeviceListFragment fragment = (DeviceListFragment) activity.getFragmentManager()
+                    .findFragmentById(R.id.frag_list);
+            WifiP2pDevice wifiP2pDevice = (WifiP2pDevice) intent.getParcelableExtra(
+            		WifiP2pManager.EXTRA_WIFI_P2P_DEVICE);
+            fragment.updateThisDevice(wifiP2pDevice);
+            Log.d(WiFiDirectActivity.TAG, "P2P this device changed - " + wifiP2pDevice);
         }
     }
 }
