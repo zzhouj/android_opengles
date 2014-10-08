@@ -25,8 +25,10 @@ import android.net.Uri;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
+import android.net.wifi.p2p.WifiP2pManager.GroupInfoListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -50,7 +52,7 @@ import java.net.Socket;
  * A fragment that manages a particular peer and allows interaction with device
  * i.e. setting up network connection and transferring data.
  */
-public class DeviceDetailFragment extends Fragment implements ConnectionInfoListener {
+public class DeviceDetailFragment extends Fragment implements ConnectionInfoListener, GroupInfoListener {
 
     protected static final int CHOOSE_FILE_RESULT_CODE = 20;
     private View mContentView = null;
@@ -140,6 +142,10 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
+		Log.d(WiFiDirectActivity.TAG, "onConnectionInfoAvailable - " + info);
+		if (!info.groupFormed) {
+			return;
+		}
         this.info = info;
         this.getView().setVisibility(View.VISIBLE);
 
@@ -170,6 +176,19 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
         // hide the connect button
         mContentView.findViewById(R.id.btn_connect).setVisibility(View.GONE);
     }
+
+	@Override
+	public void onGroupInfoAvailable(WifiP2pGroup group) {
+		if (group != null) {
+			Log.d(WiFiDirectActivity.TAG, "onGroupInfoAvailable - " + group.getNetworkName());
+			Log.d(WiFiDirectActivity.TAG, "onGroupInfoAvailable - " + group.getPassphrase());
+			TextView view = (TextView) mContentView.findViewById(R.id.group_ip);
+			view.setText(group.getNetworkName() + " - " + group.getPassphrase());
+			for (WifiP2pDevice device : group.getClientList()) {
+				Log.d(WiFiDirectActivity.TAG, "group.getClientList() - " + device);
+			}
+		}
+	}
 
     /**
      * Updates the UI with device data
