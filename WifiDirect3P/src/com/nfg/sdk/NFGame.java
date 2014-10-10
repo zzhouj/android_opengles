@@ -133,6 +133,8 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 					mWifiP2pManager.requestConnectionInfo(mChannel, NFGame.this);
 					mWifiP2pManager.requestGroupInfo(mChannel, NFGame.this);
 				} else {
+					peers.clear();
+					servicePeers.clear();
 					wifiP2pInfo = null;
 					wifiP2pGroup = null;
 				}
@@ -152,7 +154,7 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 					}
 				}
 				servicePeers.add(srcDevice);
-				Log.d(TAG, "servicePeers = " + servicePeers);
+				Log.d(TAG, "srcDevice = " + srcDevice);
 			}
 		}
 	}
