@@ -10,6 +10,8 @@ import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.NetworkInfo;
+import android.net.wifi.WpsInfo;
+import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pGroup;
@@ -104,6 +106,20 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 		mWifiP2pManager.removeGroup(mChannel, null);
 	}
 
+	public boolean connect(int servicePeerIdx) {
+		if (servicePeerIdx >= 0 && servicePeerIdx < servicePeers.size()) {
+			WifiP2pDevice device = servicePeers.get(servicePeerIdx);
+			if (device.status == WifiP2pDevice.AVAILABLE) {
+				WifiP2pConfig config = new WifiP2pConfig();
+				config.deviceAddress = device.deviceAddress;
+				config.wps.setup = WpsInfo.PBC;
+				mWifiP2pManager.connect(mChannel, config, null);
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public boolean isWifiP2pEnable() {
 		return isWifiP2pEnable;
 	}
@@ -191,9 +207,9 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 		@Override
 		public void onDnsSdServiceAvailable(String instanceName, String registrationType, WifiP2pDevice srcDevice) {
 			if (instanceName.equalsIgnoreCase(appLabel)) {
-				for (WifiP2pDevice device : servicePeers) {
-					if (device.deviceAddress.equals(srcDevice.deviceAddress)) {
-						servicePeers.remove(device);
+				for (WifiP2pDevice servicePeer : servicePeers) {
+					if (servicePeer.deviceAddress.equals(srcDevice.deviceAddress)) {
+						servicePeers.remove(servicePeer);
 						break;
 					}
 				}
@@ -211,10 +227,24 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 			this.peers.add(peer);
 			Log.d(TAG, "peer = " + peer);
 		}
+		mergeServicePeers();
 		onNFGameNotify();
 		if (this.peers.size() == 0) {
 			Log.d(TAG, "no peers");
 		}
+	}
+
+	private void mergeServicePeers() {
+		List<WifiP2pDevice> newServicePeers = new ArrayList<WifiP2pDevice>();
+		for (WifiP2pDevice servicePeer : servicePeers) {
+			for (WifiP2pDevice peer : peers) {
+				if (servicePeer.deviceAddress.equals(peer.deviceAddress)) {
+					newServicePeers.add(peer);
+					break;
+				}
+			}
+		}
+		servicePeers = newServicePeers;
 	}
 
 	@Override

@@ -65,6 +65,7 @@ public class WifiDirect3PActivity extends Activity implements NFGameNotifyListen
 		int connectedPeerCount = 0;
 		for (int i = 0; i < game.getServicePeers().size(); i++) {
 			WifiP2pDevice device = game.getServicePeers().get(i);
+			sb.append("  ");
 			sb.append(i + 1);
 			sb.append(". ");
 			sb.append(device.deviceName);
@@ -82,27 +83,46 @@ public class WifiDirect3PActivity extends Activity implements NFGameNotifyListen
 		boolean groupFormed = game.getWifiP2pInfo() != null && game.getWifiP2pInfo().groupFormed;
 		boolean isGroupOwner = game.getWifiP2pInfo() != null && game.getWifiP2pInfo().isGroupOwner;
 		if (groupFormed) {
-			sb.append("isGO: ");
+			sb.append("  isGO: ");
 			sb.append(game.getWifiP2pInfo().isGroupOwner);
 			sb.append("\n");
 
-			sb.append("IP: ");
+			sb.append("  ip: ");
 			sb.append(game.getWifiP2pInfo().groupOwnerAddress.getHostAddress());
+			sb.append("\n");
+		}
+
+		sb.append("Group info: \n");
+		if (game.getWifiP2pGroup() != null) {
+			sb.append("  ssid: ");
+			sb.append(game.getWifiP2pGroup().getNetworkName());
+			sb.append("\n");
+
+			sb.append("  pass: ");
+			sb.append(game.getWifiP2pGroup().getPassphrase());
+			sb.append("\n");
+
+			sb.append("  clients: ");
+			sb.append(game.getWifiP2pGroup().getClientList().size());
 			sb.append("\n");
 		}
 
 		mTextView.setText(sb.toString());
 
 		mButton1.setEnabled(availablePeerCount >= 1 && !groupFormed);
-		mButton2.setEnabled(connectedPeerCount == 1 && isGroupOwner);
+		mButton2.setEnabled(availablePeerCount >= 1 && connectedPeerCount == 1 && isGroupOwner);
 	}
 
 	@Override
 	public void onClick(View view) {
-		if (view == mButton1) {
-			// TODO
-		} else if (view == mButton2) {
-			// TODO
+		if (view == mButton1 || view == mButton2) {
+			for (int i = 0; i < mNFGame.getServicePeers().size(); i++) {
+				WifiP2pDevice device = mNFGame.getServicePeers().get(i);
+				if (device.status == WifiP2pDevice.AVAILABLE) {
+					mNFGame.connect(i);
+					break;
+				}
+			}
 		}
 	}
 
