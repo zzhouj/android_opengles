@@ -89,8 +89,8 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 		mWifiP2pManager.addLocalService(mChannel, mWifiP2pDnsSdServiceInfo, null);
 		mWifiP2pManager.addServiceRequest(mChannel, mWifiP2pDnsSdServiceRequest, null);
 
+		mWifiP2pManager.discoverPeers(mChannel, null);
 		mWifiP2pManager.discoverServices(mChannel, null);
-		// mWifiP2pManager.discoverPeers(mChannel, null);
 		mWifiP2pManager.requestPeers(mChannel, this);
 	}
 
@@ -173,8 +173,8 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 				onNFGameNotify();
 				Log.d(TAG, "isWifiP2pDiscoverying = " + isWifiP2pDiscoverying);
 				if (!isWifiP2pDiscoverying) {
+					mWifiP2pManager.discoverPeers(mChannel, null);
 					mWifiP2pManager.discoverServices(mChannel, null);
-					// mWifiP2pManager.discoverPeers(mChannel, null);
 				}
 
 			} else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
