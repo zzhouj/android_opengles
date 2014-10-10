@@ -67,6 +67,18 @@ public class WifiDirect3PActivity extends Activity implements NFGameNotifyListen
 		}
 		sb.append("\n");
 
+		sb.append("Peers: \n");
+		for (int i = 0; i < game.getPeers().size(); i++) {
+			WifiP2pDevice device = game.getPeers().get(i);
+			sb.append("  ");
+			sb.append(i + 1);
+			sb.append(". ");
+			sb.append(device.deviceName);
+			sb.append(":");
+			sb.append(statusAbbr(device.status));
+			sb.append("\n");
+		}
+
 		sb.append("Service Peers: \n");
 		int availablePeerCount = 0;
 		int connectedPeerCount = 0;
