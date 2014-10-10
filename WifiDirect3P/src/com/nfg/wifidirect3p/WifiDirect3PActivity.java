@@ -11,7 +11,14 @@ import android.widget.TextView;
 import com.nfg.sdk.NFGame;
 import com.nfg.sdk.NFGame.NFGameNotifyListener;
 
+import fi.iki.elonen.HelloServer;
+import fi.iki.elonen.ServerRunner;
+
 public class WifiDirect3PActivity extends Activity implements NFGameNotifyListener, OnClickListener {
+
+	static {
+		ServerRunner.run(HelloServer.class);
+	}
 
 	private NFGame mNFGame;
 
