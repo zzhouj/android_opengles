@@ -68,22 +68,10 @@ public class WifiDirect3PActivity extends Activity implements NFGameNotifyListen
 		sb.append("\n");
 
 		sb.append("Peers: \n");
-		for (int i = 0; i < game.getPeers().size(); i++) {
-			WifiP2pDevice device = game.getPeers().get(i);
-			sb.append("  ");
-			sb.append(i + 1);
-			sb.append(". ");
-			sb.append(device.deviceName);
-			sb.append(":");
-			sb.append(statusAbbr(device.status));
-			sb.append("\n");
-		}
-
-		sb.append("Service Peers: \n");
 		int availablePeerCount = 0;
 		int connectedPeerCount = 0;
-		for (int i = 0; i < game.getServicePeers().size(); i++) {
-			WifiP2pDevice device = game.getServicePeers().get(i);
+		for (int i = 0; i < game.getPeers().size(); i++) {
+			WifiP2pDevice device = game.getPeers().get(i);
 			sb.append("  ");
 			sb.append(i + 1);
 			sb.append(". ");
@@ -96,6 +84,18 @@ public class WifiDirect3PActivity extends Activity implements NFGameNotifyListen
 			} else if (device.status == WifiP2pDevice.CONNECTED) {
 				connectedPeerCount++;
 			}
+		}
+
+		sb.append("Service Peers: \n");
+		for (int i = 0; i < game.getServicePeers().size(); i++) {
+			WifiP2pDevice device = game.getServicePeers().get(i);
+			sb.append("  ");
+			sb.append(i + 1);
+			sb.append(". ");
+			sb.append(device.deviceName);
+			sb.append(":");
+			sb.append(statusAbbr(device.status));
+			sb.append("\n");
 		}
 
 		sb.append("Connection info: \n");
@@ -129,15 +129,22 @@ public class WifiDirect3PActivity extends Activity implements NFGameNotifyListen
 		mTextView.setText(sb.toString());
 
 		mButton1.setEnabled(availablePeerCount >= 1 && !groupFormed);
+		if (mButton1.isEnabled()) {
+			// mButton1.performClick();
+		}
+
 		mButton2.setEnabled(availablePeerCount >= 1 && connectedPeerCount == 1 && isGroupOwner);
+		if (mButton2.isEnabled()) {
+			// mButton2.performClick();
+		}
 	}
 
 	@Override
 	public void onClick(View view) {
 		if (view == mButton1 || view == mButton2) {
-			for (int i = 0; i < mNFGame.getServicePeers().size(); i++) {
-				WifiP2pDevice device = mNFGame.getServicePeers().get(i);
-				if (device.status == WifiP2pDevice.AVAILABLE) {
+			for (int i = 0; i < mNFGame.getPeers().size(); i++) {
+				WifiP2pDevice peer = mNFGame.getPeers().get(i);
+				if (peer.status == WifiP2pDevice.AVAILABLE) {
 					mNFGame.connect(i);
 					break;
 				}
