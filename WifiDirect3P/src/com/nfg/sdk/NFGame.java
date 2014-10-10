@@ -146,7 +146,7 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 
 		@Override
 		public void onDnsSdServiceAvailable(String instanceName, String registrationType, WifiP2pDevice srcDevice) {
-			if (instanceName.equalsIgnoreCase(appLabel) && registrationType.equalsIgnoreCase(serviceType)) {
+			if (instanceName.equalsIgnoreCase(appLabel)) {
 				for (WifiP2pDevice device : servicePeers) {
 					if (device.deviceAddress.equals(srcDevice.deviceAddress)) {
 						servicePeers.remove(device);
