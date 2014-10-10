@@ -25,11 +25,16 @@ import android.util.Log;
 
 public class NFGame implements PeerListListener, ConnectionInfoListener, GroupInfoListener {
 
+	public interface NFGameNotifyListener {
+		public void onNFGameNotify(NFGame game);
+	}
+
 	public static final String TAG = "NFGame";
 
 	private Context mContext;
 	private WifiP2pManager mWifiP2pManager;
 	private WifiP2pManager.Channel mChannel;
+	private NFGameNotifyListener mNFGameNotifyListener;
 
 	private String appLabel = TAG;
 	private String serviceType;
@@ -46,10 +51,11 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 	private WifiP2pInfo wifiP2pInfo;
 	private WifiP2pGroup wifiP2pGroup;
 
-	public NFGame(Context context) {
+	public NFGame(Context context, NFGameNotifyListener nFGameNotifyListener) {
 		mContext = context;
 		mWifiP2pManager = (WifiP2pManager) mContext.getSystemService(Context.WIFI_P2P_SERVICE);
 		mChannel = mWifiP2pManager.initialize(mContext, mContext.getMainLooper(), null);
+		mNFGameNotifyListener = nFGameNotifyListener;
 
 		mNFGameBroadcastReceiver = new NFGameBroadcastReceiver();
 		mNFGameDnsSdServiceResponseListener = new NFGameDnsSdServiceResponseListener();
@@ -98,6 +104,40 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 		mWifiP2pManager.removeGroup(mChannel, null);
 	}
 
+	public boolean isWifiP2pEnable() {
+		return isWifiP2pEnable;
+	}
+
+	public boolean isWifiP2pDiscoverying() {
+		return isWifiP2pDiscoverying;
+	}
+
+	public WifiP2pDevice getMe() {
+		return me;
+	}
+
+	public List<WifiP2pDevice> getPeers() {
+		return peers;
+	}
+
+	public List<WifiP2pDevice> getServicePeers() {
+		return servicePeers;
+	}
+
+	public WifiP2pInfo getWifiP2pInfo() {
+		return wifiP2pInfo;
+	}
+
+	public WifiP2pGroup getWifiP2pGroup() {
+		return wifiP2pGroup;
+	}
+
+	private void onNFGameNotify() {
+		if (mNFGameNotifyListener != null) {
+			mNFGameNotifyListener.onNFGameNotify(this);
+		}
+	}
+
 	private class NFGameBroadcastReceiver extends BroadcastReceiver {
 
 		@Override
@@ -108,11 +148,13 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 			if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
 				int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
 				isWifiP2pEnable = (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED);
+				onNFGameNotify();
 				Log.d(TAG, "isWifiP2pEnable = " + isWifiP2pEnable);
 
 			} else if (WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION.equals(action)) {
 				int state = intent.getIntExtra(WifiP2pManager.EXTRA_DISCOVERY_STATE, -1);
 				isWifiP2pDiscoverying = (state == WifiP2pManager.WIFI_P2P_DISCOVERY_STARTED);
+				onNFGameNotify();
 				Log.d(TAG, "isWifiP2pDiscoverying = " + isWifiP2pDiscoverying);
 				if (!isWifiP2pDiscoverying) {
 					mWifiP2pManager.discoverServices(mChannel, null);
@@ -121,6 +163,7 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 
 			} else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
 				me = (WifiP2pDevice) intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE);
+				onNFGameNotify();
 				Log.d(TAG, "me = " + me);
 
 			} else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
@@ -137,6 +180,7 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 					servicePeers.clear();
 					wifiP2pInfo = null;
 					wifiP2pGroup = null;
+					onNFGameNotify();
 				}
 			}
 		}
@@ -154,6 +198,7 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 					}
 				}
 				servicePeers.add(srcDevice);
+				onNFGameNotify();
 				Log.d(TAG, "srcDevice = " + srcDevice);
 			}
 		}
@@ -166,6 +211,7 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 			this.peers.add(peer);
 			Log.d(TAG, "peer = " + peer);
 		}
+		onNFGameNotify();
 		if (this.peers.size() == 0) {
 			Log.d(TAG, "no peers");
 		}
@@ -174,12 +220,14 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 	@Override
 	public void onConnectionInfoAvailable(WifiP2pInfo info) {
 		wifiP2pInfo = info;
+		onNFGameNotify();
 		Log.d(TAG, "wifiP2pInfo = " + wifiP2pInfo);
 	}
 
 	@Override
 	public void onGroupInfoAvailable(WifiP2pGroup group) {
 		wifiP2pGroup = group;
+		onNFGameNotify();
 		Log.d(TAG, "wifiP2pGroup = " + wifiP2pGroup);
 	}
 

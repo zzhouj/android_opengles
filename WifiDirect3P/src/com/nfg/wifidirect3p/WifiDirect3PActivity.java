@@ -13,7 +13,7 @@ public class WifiDirect3PActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		mNFGame = new NFGame(this);
+		mNFGame = new NFGame(this, null);
 		mNFGame.init();
 	}
 
