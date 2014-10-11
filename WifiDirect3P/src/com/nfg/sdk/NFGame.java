@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
@@ -35,6 +36,7 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 	public static final String TAG = "NFGame";
 
 	private Context mContext;
+	private WifiManager mWifiManager;
 	private WifiP2pManager mWifiP2pManager;
 	private WifiP2pManager.Channel mChannel;
 	private NFGameNotifyListener mNFGameNotifyListener;
@@ -56,6 +58,7 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 
 	public NFGame(Context context, NFGameNotifyListener nFGameNotifyListener) {
 		mContext = context;
+		mWifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
 		mWifiP2pManager = (WifiP2pManager) mContext.getSystemService(Context.WIFI_P2P_SERVICE);
 		mChannel = mWifiP2pManager.initialize(mContext, mContext.getMainLooper(), null);
 		mNFGameNotifyListener = nFGameNotifyListener;
@@ -184,6 +187,11 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 			if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
 				int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
 				isWifiP2pEnable = (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED);
+				if (!isWifiP2pEnable) {
+					mWifiManager.setWifiEnabled(true);
+				} else {
+					discoverPeers();
+				}
 				onNFGameNotify();
 				Log.d(TAG, "isWifiP2pEnable = " + isWifiP2pEnable);
 
