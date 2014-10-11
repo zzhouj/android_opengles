@@ -25,6 +25,7 @@ public class WifiDirect3PActivity extends Activity implements NFGameNotifyListen
 	private TextView mTextView;
 	private Button mButton1;
 	private Button mButton2;
+	private Button mButton3;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -33,9 +34,11 @@ public class WifiDirect3PActivity extends Activity implements NFGameNotifyListen
 		mTextView = (TextView) findViewById(R.id.text1);
 		mButton1 = (Button) findViewById(R.id.button1);
 		mButton2 = (Button) findViewById(R.id.button2);
+		mButton3 = (Button) findViewById(R.id.button3);
 
 		mButton1.setOnClickListener(this);
 		mButton2.setOnClickListener(this);
+		mButton3.setOnClickListener(this);
 
 		mNFGame = new NFGame(this, this);
 		mNFGame.init();
@@ -130,6 +133,7 @@ public class WifiDirect3PActivity extends Activity implements NFGameNotifyListen
 
 		mButton1.setEnabled(!groupFormed);
 		mButton2.setEnabled(availablePeerCount >= 1 && isGroupOwner);
+		mButton3.setEnabled(!game.isWifiP2pDiscoverying());
 	}
 
 	@Override
@@ -144,6 +148,8 @@ public class WifiDirect3PActivity extends Activity implements NFGameNotifyListen
 					break;
 				}
 			}
+		} else if (view == mButton3) {
+			mNFGame.discoverPeers();
 		}
 	}
 
