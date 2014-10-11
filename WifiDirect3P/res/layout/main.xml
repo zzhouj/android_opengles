@@ -24,13 +24,13 @@
             android:id="@+id/button1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="2P" />
+            android:text="Group" />
 
         <Button
             android:id="@+id/button2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="3P" />
+            android:text="Invite" />
     </LinearLayout>
 
 </RelativeLayout>

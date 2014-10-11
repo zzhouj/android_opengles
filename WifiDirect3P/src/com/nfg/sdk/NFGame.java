@@ -124,6 +124,11 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 		return false;
 	}
 
+	public boolean group() {
+		mWifiP2pManager.createGroup(mChannel, new NFGameActionListener("createGroup"));
+		return true;
+	}
+
 	public boolean isWifiP2pEnable() {
 		return isWifiP2pEnable;
 	}

@@ -128,20 +128,15 @@ public class WifiDirect3PActivity extends Activity implements NFGameNotifyListen
 
 		mTextView.setText(sb.toString());
 
-		mButton1.setEnabled(availablePeerCount >= 1 && !groupFormed);
-		if (mButton1.isEnabled()) {
-			// mButton1.performClick();
-		}
-
-		mButton2.setEnabled(availablePeerCount >= 1 && connectedPeerCount == 1 && isGroupOwner);
-		if (mButton2.isEnabled()) {
-			// mButton2.performClick();
-		}
+		mButton1.setEnabled(!groupFormed);
+		mButton2.setEnabled(availablePeerCount >= 1 && isGroupOwner);
 	}
 
 	@Override
 	public void onClick(View view) {
-		if (view == mButton1 || view == mButton2) {
+		if (view == mButton1) {
+			mNFGame.group();
+		} else if (view == mButton2) {
 			for (int i = 0; i < mNFGame.getPeers().size(); i++) {
 				WifiP2pDevice peer = mNFGame.getPeers().get(i);
 				if (peer.status == WifiP2pDevice.AVAILABLE) {
