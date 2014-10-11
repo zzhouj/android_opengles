@@ -1,8 +1,10 @@
 package com.nfg.wifidirect3p;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -26,6 +28,7 @@ public class WifiDirect3PActivity extends Activity implements NFGameNotifyListen
 	private Button mButton1;
 	private Button mButton2;
 	private Button mButton3;
+	private Button mButton4;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -35,10 +38,12 @@ public class WifiDirect3PActivity extends Activity implements NFGameNotifyListen
 		mButton1 = (Button) findViewById(R.id.button1);
 		mButton2 = (Button) findViewById(R.id.button2);
 		mButton3 = (Button) findViewById(R.id.button3);
+		mButton4 = (Button) findViewById(R.id.button4);
 
 		mButton1.setOnClickListener(this);
 		mButton2.setOnClickListener(this);
 		mButton3.setOnClickListener(this);
+		mButton4.setOnClickListener(this);
 
 		mNFGame = new NFGame(this, this);
 		mNFGame.init();
@@ -150,6 +155,8 @@ public class WifiDirect3PActivity extends Activity implements NFGameNotifyListen
 			}
 		} else if (view == mButton3) {
 			mNFGame.discoverPeers();
+		} else if (view == mButton4) {
+			startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
 		}
 	}
 
