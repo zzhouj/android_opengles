@@ -104,7 +104,7 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 		mWifiP2pManager.removeServiceRequest(mChannel, mWifiP2pDnsSdServiceRequest,
 				new NFGameActionListener("removeServiceRequest"));
 
-		mWifiP2pManager.stopPeerDiscovery(mChannel, new NFGameActionListener("stopPeerDiscovery"));
+		stopPeerDiscovery();
 
 		mWifiP2pManager.cancelConnect(mChannel, new NFGameActionListener("cancelConnect"));
 		mWifiP2pManager.removeGroup(mChannel, new NFGameActionListener("removeGroup"));
@@ -124,9 +124,20 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 		return false;
 	}
 
-	public boolean group() {
+	public boolean createGroup() {
 		mWifiP2pManager.createGroup(mChannel, new NFGameActionListener("createGroup"));
 		return true;
+	}
+
+	public void discoverPeers() {
+		if (!isWifiP2pDiscoverying) {
+			mWifiP2pManager.discoverPeers(mChannel, new NFGameActionListener("discoverPeers"));
+			// mWifiP2pManager.discoverServices(mChannel, new NFGameActionListener("discoverServices"));
+		}
+	}
+
+	public void stopPeerDiscovery() {
+		mWifiP2pManager.stopPeerDiscovery(mChannel, new NFGameActionListener("stopPeerDiscovery"));
 	}
 
 	public boolean isWifiP2pEnable() {
@@ -155,13 +166,6 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 
 	public WifiP2pGroup getWifiP2pGroup() {
 		return wifiP2pGroup;
-	}
-
-	public void discoverPeers() {
-		if (!isWifiP2pDiscoverying) {
-			mWifiP2pManager.discoverPeers(mChannel, new NFGameActionListener("discoverPeers"));
-			// mWifiP2pManager.discoverServices(mChannel, new NFGameActionListener("discoverServices"));
-		}
 	}
 
 	private void onNFGameNotify() {

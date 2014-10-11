@@ -139,7 +139,7 @@ public class WifiDirect3PActivity extends Activity implements NFGameNotifyListen
 	@Override
 	public void onClick(View view) {
 		if (view == mButton1) {
-			mNFGame.group();
+			mNFGame.createGroup();
 		} else if (view == mButton2) {
 			for (int i = 0; i < mNFGame.getPeers().size(); i++) {
 				WifiP2pDevice peer = mNFGame.getPeers().get(i);
