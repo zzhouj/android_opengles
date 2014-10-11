@@ -102,10 +102,8 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 	public void deinit() {
 		mContext.unregisterReceiver(mNFGameBroadcastReceiver);
 
-		mWifiP2pManager.removeLocalService(mChannel, mWifiP2pDnsSdServiceInfo,
-				new NFGameActionListener("removeLocalService"));
-		mWifiP2pManager.removeServiceRequest(mChannel, mWifiP2pDnsSdServiceRequest,
-				new NFGameActionListener("removeServiceRequest"));
+		mWifiP2pManager.clearLocalServices(mChannel, new NFGameActionListener("clearLocalServices"));
+		mWifiP2pManager.clearServiceRequests(mChannel, new NFGameActionListener("clearServiceRequests"));
 
 		stopPeerDiscovery();
 
