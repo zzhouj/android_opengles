@@ -132,7 +132,7 @@ public class WifiDirect3PActivity extends Activity implements NFGameNotifyListen
 		mTextView.setText(sb.toString());
 
 		mButton1.setEnabled(!groupFormed);
-		mButton2.setEnabled(availablePeerCount >= 1 && isGroupOwner);
+		mButton2.setEnabled(availablePeerCount >= 1);
 		mButton3.setEnabled(!game.isWifiP2pDiscoverying());
 	}
 
