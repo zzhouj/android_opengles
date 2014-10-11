@@ -117,6 +117,7 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 			if (device.status == WifiP2pDevice.AVAILABLE) {
 				WifiP2pConfig config = new WifiP2pConfig();
 				config.deviceAddress = device.deviceAddress;
+				config.groupOwnerIntent = 15;
 				config.wps.setup = WpsInfo.PBC;
 				mWifiP2pManager.connect(mChannel, config, new NFGameActionListener("connect"));
 				return true;
