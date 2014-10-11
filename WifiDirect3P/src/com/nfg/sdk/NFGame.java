@@ -17,6 +17,7 @@ import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.net.wifi.p2p.WifiP2pManager.ActionListener;
 import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
 import android.net.wifi.p2p.WifiP2pManager.DnsSdServiceResponseListener;
 import android.net.wifi.p2p.WifiP2pManager.GroupInfoListener;
@@ -86,24 +87,28 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 		mContext.registerReceiver(mNFGameBroadcastReceiver, filter);
 
 		mWifiP2pManager.setDnsSdResponseListeners(mChannel, mNFGameDnsSdServiceResponseListener, null);
-		mWifiP2pManager.addLocalService(mChannel, mWifiP2pDnsSdServiceInfo, null);
-		mWifiP2pManager.addServiceRequest(mChannel, mWifiP2pDnsSdServiceRequest, null);
+		mWifiP2pManager.addLocalService(mChannel, mWifiP2pDnsSdServiceInfo,
+				new NFGameActionListener("addLocalService"));
+		mWifiP2pManager.addServiceRequest(mChannel, mWifiP2pDnsSdServiceRequest,
+				new NFGameActionListener("addServiceRequest"));
 
-		mWifiP2pManager.discoverPeers(mChannel, null);
-		// mWifiP2pManager.discoverServices(mChannel, null);
+		mWifiP2pManager.discoverPeers(mChannel, new NFGameActionListener("discoverPeers"));
+		// mWifiP2pManager.discoverServices(mChannel, new NFGameActionListener("discoverServices"));
 		mWifiP2pManager.requestPeers(mChannel, this);
 	}
 
 	public void deinit() {
 		mContext.unregisterReceiver(mNFGameBroadcastReceiver);
 
-		mWifiP2pManager.removeLocalService(mChannel, mWifiP2pDnsSdServiceInfo, null);
-		mWifiP2pManager.removeServiceRequest(mChannel, mWifiP2pDnsSdServiceRequest, null);
+		mWifiP2pManager.removeLocalService(mChannel, mWifiP2pDnsSdServiceInfo,
+				new NFGameActionListener("removeLocalService"));
+		mWifiP2pManager.removeServiceRequest(mChannel, mWifiP2pDnsSdServiceRequest,
+				new NFGameActionListener("removeServiceRequest"));
 
-		mWifiP2pManager.stopPeerDiscovery(mChannel, null);
+		mWifiP2pManager.stopPeerDiscovery(mChannel, new NFGameActionListener("stopPeerDiscovery"));
 
-		mWifiP2pManager.cancelConnect(mChannel, null);
-		mWifiP2pManager.removeGroup(mChannel, null);
+		mWifiP2pManager.cancelConnect(mChannel, new NFGameActionListener("cancelConnect"));
+		mWifiP2pManager.removeGroup(mChannel, new NFGameActionListener("removeGroup"));
 	}
 
 	public boolean connect(int peerIdx) {
@@ -113,7 +118,7 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 				WifiP2pConfig config = new WifiP2pConfig();
 				config.deviceAddress = device.deviceAddress;
 				config.wps.setup = WpsInfo.PBC;
-				mWifiP2pManager.connect(mChannel, config, null);
+				mWifiP2pManager.connect(mChannel, config, new NFGameActionListener("connect"));
 				return true;
 			}
 		}
@@ -173,8 +178,8 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 				onNFGameNotify();
 				Log.d(TAG, "isWifiP2pDiscoverying = " + isWifiP2pDiscoverying);
 				if (!isWifiP2pDiscoverying) {
-					mWifiP2pManager.discoverPeers(mChannel, null);
-					// mWifiP2pManager.discoverServices(mChannel, null);
+					mWifiP2pManager.discoverPeers(mChannel, new NFGameActionListener("discoverPeers"));
+					// mWifiP2pManager.discoverServices(mChannel, new NFGameActionListener("discoverServices"));
 				}
 
 			} else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
@@ -216,6 +221,38 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 				servicePeers.add(srcDevice);
 				onNFGameNotify();
 				Log.d(TAG, "srcDevice = " + srcDevice);
+			}
+		}
+	}
+
+	private class NFGameActionListener implements ActionListener {
+		private String funcName;
+
+		public NFGameActionListener(String funcName) {
+			this.funcName = funcName;
+		}
+
+		@Override
+		public void onFailure(int reason) {
+			Log.d(TAG, funcName + " onFailure " + reasonName(reason));
+		}
+
+		@Override
+		public void onSuccess() {
+			Log.d(TAG, funcName + " onSuccess ");
+		}
+
+		private String reasonName(int reason) {
+			if (reason == WifiP2pManager.P2P_UNSUPPORTED) {
+				return "P2P_UNSUPPORTED";
+			} else if (reason == WifiP2pManager.ERROR) {
+				return "ERROR";
+			} else if (reason == WifiP2pManager.BUSY) {
+				return "BUSY";
+			} else if (reason == WifiP2pManager.NO_SERVICE_REQUESTS) {
+				return "NO_SERVICE_REQUESTS";
+			} else {
+				return String.valueOf(reason);
 			}
 		}
 	}
