@@ -92,8 +92,7 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 		mWifiP2pManager.addServiceRequest(mChannel, mWifiP2pDnsSdServiceRequest,
 				new NFGameActionListener("addServiceRequest"));
 
-		mWifiP2pManager.discoverPeers(mChannel, new NFGameActionListener("discoverPeers"));
-		// mWifiP2pManager.discoverServices(mChannel, new NFGameActionListener("discoverServices"));
+		discoverPeers();
 		mWifiP2pManager.requestPeers(mChannel, this);
 	}
 
@@ -153,6 +152,13 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 		return wifiP2pGroup;
 	}
 
+	private void discoverPeers() {
+		if (!isWifiP2pDiscoverying) {
+			mWifiP2pManager.discoverPeers(mChannel, new NFGameActionListener("discoverPeers"));
+			// mWifiP2pManager.discoverServices(mChannel, new NFGameActionListener("discoverServices"));
+		}
+	}
+
 	private void onNFGameNotify() {
 		if (mNFGameNotifyListener != null) {
 			mNFGameNotifyListener.onNFGameNotify(this);
@@ -170,25 +176,25 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 				int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
 				isWifiP2pEnable = (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED);
 				onNFGameNotify();
+				discoverPeers();
 				Log.d(TAG, "isWifiP2pEnable = " + isWifiP2pEnable);
 
 			} else if (WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION.equals(action)) {
 				int state = intent.getIntExtra(WifiP2pManager.EXTRA_DISCOVERY_STATE, -1);
 				isWifiP2pDiscoverying = (state == WifiP2pManager.WIFI_P2P_DISCOVERY_STARTED);
 				onNFGameNotify();
+				discoverPeers();
 				Log.d(TAG, "isWifiP2pDiscoverying = " + isWifiP2pDiscoverying);
-				if (!isWifiP2pDiscoverying) {
-					mWifiP2pManager.discoverPeers(mChannel, new NFGameActionListener("discoverPeers"));
-					// mWifiP2pManager.discoverServices(mChannel, new NFGameActionListener("discoverServices"));
-				}
 
 			} else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
 				me = (WifiP2pDevice) intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE);
 				onNFGameNotify();
+				discoverPeers();
 				Log.d(TAG, "me = " + me);
 
 			} else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
 				mWifiP2pManager.requestPeers(mChannel, NFGame.this);
+				discoverPeers();
 
 			} else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
 				NetworkInfo networkInfo = (NetworkInfo) intent.getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
@@ -197,12 +203,11 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 					mWifiP2pManager.requestConnectionInfo(mChannel, NFGame.this);
 					mWifiP2pManager.requestGroupInfo(mChannel, NFGame.this);
 				} else {
-					peers.clear();
-					servicePeers.clear();
 					wifiP2pInfo = null;
 					wifiP2pGroup = null;
 					onNFGameNotify();
 				}
+				discoverPeers();
 			}
 		}
 	}
