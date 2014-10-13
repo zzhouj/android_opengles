@@ -8,6 +8,7 @@ import org.java_websocket.handshake.ServerHandshake;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -32,8 +33,8 @@ public class ChatActivity extends Activity implements OnClickListener {
 
 		setContentView(R.layout.chat);
 		mTextView = (TextView) findViewById(R.id.text);
-		mEditText = (EditText) findViewById(R.id.text);
-		mButton = (Button) findViewById(R.id.text);
+		mEditText = (EditText) findViewById(R.id.edit);
+		mButton = (Button) findViewById(R.id.button);
 		mButton.setOnClickListener(this);
 
 		String address = getIntent().getStringExtra(EXTRA_ADDRESS);
@@ -65,12 +66,17 @@ public class ChatActivity extends Activity implements OnClickListener {
 		}
 
 		@Override
-		public void onMessage(String message) {
-			StringBuffer sb = new StringBuffer();
-			sb.append(mTextView.getText());
-			sb.append(message);
-			sb.append("\n");
-			mTextView.setText(sb.toString());
+		public void onMessage(final String message) {
+			mTextView.post(new Runnable() {
+				@Override
+				public void run() {
+					StringBuffer sb = new StringBuffer();
+					sb.append(mTextView.getText());
+					sb.append(message);
+					sb.append("\n");
+					mTextView.setText(sb.toString());
+				}
+			});
 		}
 
 		@Override
@@ -89,7 +95,11 @@ public class ChatActivity extends Activity implements OnClickListener {
 	public void onClick(View v) {
 		if (v == mButton) {
 			if (mChatClient != null) {
-				mChatClient.send(mEditText.getText().toString());
+				String message = mEditText.getText().toString();
+				if (!TextUtils.isEmpty(message)) {
+					mChatClient.send(mEditText.getText().toString());
+					mEditText.setText("");
+				}
 			}
 		}
 	}

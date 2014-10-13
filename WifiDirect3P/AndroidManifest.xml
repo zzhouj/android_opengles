@@ -30,6 +30,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.nfg.wifidirect3p.ChatActivity" >
+        </activity>
     </application>
 
 </manifest>

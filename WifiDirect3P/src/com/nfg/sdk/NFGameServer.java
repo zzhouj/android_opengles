@@ -7,6 +7,8 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
+import android.util.Log;
+
 public class NFGameServer extends WebSocketServer {
 
 	public static final int DEFAULT_PORT = 8787;
@@ -17,17 +19,17 @@ public class NFGameServer extends WebSocketServer {
 
 	@Override
 	public void onOpen(WebSocket conn, ClientHandshake handshake) {
-		sendToAll(conn.getResourceDescriptor() + ": joined.");
+		sendToAll(conn.getRemoteSocketAddress().getAddress() + ": joined.");
 	}
 
 	@Override
 	public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-		sendToAll(conn.getResourceDescriptor() + ": left.");
+		sendToAll(conn.getRemoteSocketAddress().getAddress() + ": left.");
 	}
 
 	@Override
 	public void onMessage(WebSocket conn, String message) {
-		sendToAll(conn.getResourceDescriptor() + ": " + message);
+		sendToAll(conn.getRemoteSocketAddress().getAddress() + ": " + message);
 	}
 
 	@Override
@@ -36,6 +38,7 @@ public class NFGameServer extends WebSocketServer {
 	}
 
 	public void sendToAll(String text) {
+		Log.d(NFGame.TAG, "sendToAll " + text);
 		Collection<WebSocket> con = connections();
 		synchronized (con) {
 			for (WebSocket c : con) {
