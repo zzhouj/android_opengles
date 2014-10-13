@@ -22,6 +22,7 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.ActionListener;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
+import android.net.wifi.p2p.WifiP2pManager.DialogListener;
 import android.net.wifi.p2p.WifiP2pManager.DnsSdServiceResponseListener;
 import android.net.wifi.p2p.WifiP2pManager.GroupInfoListener;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
@@ -101,6 +102,8 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 
 		discoverPeers();
 		mWifiP2pManager.requestPeers(mChannel, this);
+
+		setDialogListener();
 	}
 
 	public void deinit() {
@@ -135,6 +138,31 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 		wifiP2pInfo = null;
 		wifiP2pGroup = null;
 		mNetId = -1;
+	}
+
+	private void setDialogListener() {
+		try {
+			mWifiP2pManager.setDialogListener(mChannel, new DialogListener() {
+				@Override
+				public void onShowPinRequested(String arg0) {
+				}
+
+				@Override
+				public void onDetached(int arg0) {
+				}
+
+				@Override
+				public void onConnectionRequested(WifiP2pDevice arg0, WifiP2pConfig arg1) {
+					connect(arg0.deviceAddress, false);
+				}
+
+				@Override
+				public void onAttached() {
+				}
+			});
+		} catch (NoSuchMethodError e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void reset() {
