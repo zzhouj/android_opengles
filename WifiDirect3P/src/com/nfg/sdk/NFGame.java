@@ -28,6 +28,7 @@ import android.net.wifi.p2p.WifiP2pManager.GroupInfoListener;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.net.wifi.p2p.nsd.WifiP2pDnsSdServiceInfo;
 import android.net.wifi.p2p.nsd.WifiP2pDnsSdServiceRequest;
+import android.os.Handler;
 import android.util.Log;
 
 public class NFGame implements PeerListListener, ConnectionInfoListener, GroupInfoListener {
@@ -50,6 +51,8 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 	private NFGameDnsSdServiceResponseListener mNFGameDnsSdServiceResponseListener;
 	private WifiP2pDnsSdServiceInfo mWifiP2pDnsSdServiceInfo;
 	private WifiP2pDnsSdServiceRequest mWifiP2pDnsSdServiceRequest;
+	private Handler mHandler;
+	private Runnable mDiscoveryingRunnable;
 
 	private boolean isWifiP2pEnable;
 	private boolean isWifiP2pDiscoverying;
@@ -79,6 +82,13 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 		serviceType = mContext.getPackageName();
 		mWifiP2pDnsSdServiceInfo = WifiP2pDnsSdServiceInfo.newInstance(appLabel, serviceType, null);
 		mWifiP2pDnsSdServiceRequest = WifiP2pDnsSdServiceRequest.newInstance();
+		mHandler = new Handler();
+		mDiscoveryingRunnable = new Runnable() {
+			@Override
+			public void run() {
+				discoverPeers();
+			}
+		};
 
 		peers = new ArrayList<WifiP2pDevice>();
 		servicePeers = new ArrayList<WifiP2pDevice>();
@@ -186,14 +196,24 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 	}
 
 	public void discoverPeers() {
-		if (!isWifiP2pDiscoverying) {
+		int invitedPeerCount = 0;
+		for (int i = 0; i < peers.size(); i++) {
+			WifiP2pDevice device = peers.get(i);
+			if (device.status == WifiP2pDevice.INVITED) {
+				invitedPeerCount++;
+			}
+		}
+		if (invitedPeerCount == 0) {
 			mWifiP2pManager.discoverPeers(mChannel, new NFGameActionListener("discoverPeers"));
 			// mWifiP2pManager.discoverServices(mChannel, new NFGameActionListener("discoverServices"));
 		}
+		mHandler.removeCallbacks(mDiscoveryingRunnable);
+		mHandler.postDelayed(mDiscoveryingRunnable, 8000);
 	}
 
 	public void stopPeerDiscovery() {
-		mWifiP2pManager.stopPeerDiscovery(mChannel, new NFGameActionListener("stopPeerDiscovery"));
+		// mWifiP2pManager.stopPeerDiscovery(mChannel, new NFGameActionListener("stopPeerDiscovery"));
+		mHandler.removeCallbacks(mDiscoveryingRunnable);
 	}
 
 	public boolean isWifiP2pEnable() {
