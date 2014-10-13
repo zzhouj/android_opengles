@@ -8,6 +8,7 @@ import org.java_websocket.handshake.ServerHandshake;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -25,6 +26,8 @@ public class ChatActivity extends Activity implements OnClickListener {
 	private EditText mEditText;
 	private Button mButton;
 
+	private Handler mHandler;
+
 	private ChatClient mChatClient;
 
 	@Override
@@ -36,6 +39,8 @@ public class ChatActivity extends Activity implements OnClickListener {
 		mEditText = (EditText) findViewById(R.id.edit);
 		mButton = (Button) findViewById(R.id.button);
 		mButton.setOnClickListener(this);
+
+		mHandler = new Handler();
 
 		String address = getIntent().getStringExtra(EXTRA_ADDRESS);
 		try {
@@ -67,7 +72,7 @@ public class ChatActivity extends Activity implements OnClickListener {
 
 		@Override
 		public void onMessage(final String message) {
-			mTextView.post(new Runnable() {
+			mHandler.post(new Runnable() {
 				@Override
 				public void run() {
 					StringBuffer sb = new StringBuffer();
