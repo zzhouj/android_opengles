@@ -156,7 +156,7 @@ public class WifiDirect3PActivity extends Activity implements NFGameNotifyListen
 			for (int i = 0; i < mNFGame.getPeers().size(); i++) {
 				WifiP2pDevice peer = mNFGame.getPeers().get(i);
 				if (peer.status == WifiP2pDevice.AVAILABLE) {
-					mNFGame.connect(i);
+					mNFGame.connect(peer.deviceAddress, true);
 					break;
 				}
 			}

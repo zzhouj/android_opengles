@@ -142,19 +142,14 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 		init();
 	}
 
-	public boolean connect(int peerIdx) {
-		if (peerIdx >= 0 && peerIdx < peers.size()) {
-			WifiP2pDevice device = peers.get(peerIdx);
-			if (device.status == WifiP2pDevice.AVAILABLE) {
-				WifiP2pConfig config = new WifiP2pConfig();
-				config.deviceAddress = device.deviceAddress;
-				config.groupOwnerIntent = 15;
-				config.wps.setup = WpsInfo.PBC;
-				mWifiP2pManager.connect(mChannel, config, new NFGameActionListener("connect"));
-				return true;
-			}
+	public void connect(String deviceAddress, boolean beGO) {
+		WifiP2pConfig config = new WifiP2pConfig();
+		config.deviceAddress = deviceAddress;
+		if (beGO) {
+			config.groupOwnerIntent = 15;
 		}
-		return false;
+		config.wps.setup = WpsInfo.PBC;
+		mWifiP2pManager.connect(mChannel, config, new NFGameActionListener("connect"));
 	}
 
 	public boolean createGroup() {
