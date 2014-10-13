@@ -12,17 +12,12 @@ import android.widget.TextView;
 
 import com.nfg.sdk.NFGame;
 import com.nfg.sdk.NFGame.NFGameNotifyListener;
-
-import fi.iki.elonen.HelloServer;
-import fi.iki.elonen.ServerRunner;
+import com.nfg.sdk.NFGameServer;
 
 public class WifiDirect3PActivity extends Activity implements NFGameNotifyListener, OnClickListener {
 
-	static {
-		ServerRunner.run(HelloServer.class);
-	}
-
 	private NFGame mNFGame;
+	private NFGameServer mNFGameServer;
 
 	private TextView mTextView;
 	private Button mButton1;
@@ -30,6 +25,7 @@ public class WifiDirect3PActivity extends Activity implements NFGameNotifyListen
 	private Button mButton3;
 	private Button mButton4;
 	private Button mButton5;
+	private Button mButton6;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -41,12 +37,14 @@ public class WifiDirect3PActivity extends Activity implements NFGameNotifyListen
 		mButton3 = (Button) findViewById(R.id.button3);
 		mButton4 = (Button) findViewById(R.id.button4);
 		mButton5 = (Button) findViewById(R.id.button5);
+		mButton6 = (Button) findViewById(R.id.button6);
 
 		mButton1.setOnClickListener(this);
 		mButton2.setOnClickListener(this);
 		mButton3.setOnClickListener(this);
 		mButton4.setOnClickListener(this);
 		mButton5.setOnClickListener(this);
+		mButton6.setOnClickListener(this);
 
 		mNFGame = new NFGame(this, this);
 		mNFGame.init();
@@ -56,6 +54,7 @@ public class WifiDirect3PActivity extends Activity implements NFGameNotifyListen
 	protected void onDestroy() {
 		super.onDestroy();
 		mNFGame.deinit();
+		stopServer();
 	}
 
 	@Override
@@ -146,6 +145,11 @@ public class WifiDirect3PActivity extends Activity implements NFGameNotifyListen
 		mButton1.setEnabled(!groupFormed);
 		mButton2.setEnabled(availablePeerCount >= 1);
 		mButton3.setEnabled(!game.isWifiP2pDiscoverying());
+		mButton6.setEnabled(groupFormed);
+
+		if (isGroupOwner) {
+			startServer();
+		}
 	}
 
 	@Override
@@ -166,6 +170,29 @@ public class WifiDirect3PActivity extends Activity implements NFGameNotifyListen
 			startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
 		} else if (view == mButton5) {
 			mNFGame.reset();
+			stopServer();
+		} else if (view == mButton6) {
+			Intent intent = new Intent(this, ChatActivity.class);
+			intent.putExtra(ChatActivity.EXTRA_ADDRESS, mNFGame.getWifiP2pInfo().groupOwnerAddress.getHostAddress());
+			startActivity(intent);
+		}
+	}
+
+	private void startServer() {
+		if (mNFGameServer == null) {
+			mNFGameServer = new NFGameServer();
+			mNFGameServer.start();
+		}
+	}
+
+	private void stopServer() {
+		if (mNFGameServer != null) {
+			try {
+				mNFGameServer.stop(0);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			mNFGameServer = null;
 		}
 	}
 
