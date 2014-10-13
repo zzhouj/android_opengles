@@ -204,15 +204,17 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 			}
 		}
 		if (invitedPeerCount == 0) {
-			mWifiP2pManager.discoverPeers(mChannel, new NFGameActionListener("discoverPeers"));
-			// mWifiP2pManager.discoverServices(mChannel, new NFGameActionListener("discoverServices"));
+			if (!isWifiP2pDiscoverying) {
+				mWifiP2pManager.discoverPeers(mChannel, new NFGameActionListener("discoverPeers"));
+				// mWifiP2pManager.discoverServices(mChannel, new NFGameActionListener("discoverServices"));
+			}
 		}
 		mHandler.removeCallbacks(mDiscoveryingRunnable);
 		mHandler.postDelayed(mDiscoveryingRunnable, 8000);
 	}
 
 	public void stopPeerDiscovery() {
-		// mWifiP2pManager.stopPeerDiscovery(mChannel, new NFGameActionListener("stopPeerDiscovery"));
+		mWifiP2pManager.stopPeerDiscovery(mChannel, new NFGameActionListener("stopPeerDiscovery"));
 		mHandler.removeCallbacks(mDiscoveryingRunnable);
 	}
 
