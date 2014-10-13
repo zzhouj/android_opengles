@@ -1,5 +1,6 @@
 package com.nfg.sdk;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,7 @@ import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.ActionListener;
+import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
 import android.net.wifi.p2p.WifiP2pManager.DnsSdServiceResponseListener;
 import android.net.wifi.p2p.WifiP2pManager.GroupInfoListener;
@@ -55,6 +57,7 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 	private List<WifiP2pDevice> servicePeers;
 	private WifiP2pInfo wifiP2pInfo;
 	private WifiP2pGroup wifiP2pGroup;
+	private int mNetId = -1;
 
 	public NFGame(Context context, NFGameNotifyListener nFGameNotifyListener) {
 		mContext = context;
@@ -81,6 +84,7 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 	}
 
 	public void init() {
+		initData();
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
 		filter.addAction(WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION);
@@ -109,6 +113,33 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 
 		mWifiP2pManager.cancelConnect(mChannel, new NFGameActionListener("cancelConnect"));
 		mWifiP2pManager.removeGroup(mChannel, new NFGameActionListener("removeGroup"));
+		if (mNetId != -1) {
+			try {
+				Method deletePersistentGroup = mWifiP2pManager.getClass().getMethod("deletePersistentGroup",
+						Channel.class, int.class, ActionListener.class);
+				deletePersistentGroup.setAccessible(true);
+				deletePersistentGroup.invoke(mWifiP2pManager, mChannel, mNetId,
+						new NFGameActionListener("deletePersistentGroup"));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private void initData() {
+		isWifiP2pEnable = false;
+		isWifiP2pDiscoverying = false;
+		me = null;
+		peers.clear();
+		servicePeers.clear();
+		wifiP2pInfo = null;
+		wifiP2pGroup = null;
+		mNetId = -1;
+	}
+
+	public void reset() {
+		deinit();
+		init();
 	}
 
 	public boolean connect(int peerIdx) {
@@ -168,6 +199,10 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 
 	public WifiP2pGroup getWifiP2pGroup() {
 		return wifiP2pGroup;
+	}
+
+	public int getNetId() {
+		return mNetId;
 	}
 
 	private void onNFGameNotify() {
@@ -310,6 +345,13 @@ public class NFGame implements PeerListListener, ConnectionInfoListener, GroupIn
 	@Override
 	public void onGroupInfoAvailable(WifiP2pGroup group) {
 		wifiP2pGroup = group;
+		try {
+			Method getNetworkId = group.getClass().getMethod("getNetworkId");
+			getNetworkId.setAccessible(true);
+			mNetId = (Integer) getNetworkId.invoke(group);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		onNFGameNotify();
 		Log.d(TAG, "wifiP2pGroup = " + wifiP2pGroup);
 	}
